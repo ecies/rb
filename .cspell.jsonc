@@ -1,0 +1,17 @@
+{
+  "words": [
+    "decapsulation",
+    "ecies",
+    "eciesrb",
+    "HKDF",
+    "libsecp256k1",
+    "privkey",
+    "rubygems",
+    "secp256k1"
+  ],
+  "ignorePaths": [
+    ".gitignore",
+    "LICENSE",
+    "Gemfile.lock"
+  ]
+}

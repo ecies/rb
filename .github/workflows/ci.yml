@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        ruby-version: ['3.2', '3.3', '3.4']
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Install dependencies on macOS
+        if: runner.os == 'macOS'
+        run: brew install automake libtool secp256k1 openssl
+
+      - name: Install dependencies on Ubuntu
+        if: runner.os == 'Linux'
+        run: sudo apt install -y libsecp256k1-dev gcc
+
+      - run: bundle install
+
+      - name: Run tests
+        run: C_INCLUDE_PATH=/opt/homebrew/opt/secp256k1/include bundle exec rake test
+
+      - name: Run examples
+        run: |
+          export C_INCLUDE_PATH=/opt/homebrew/opt/secp256k1/include
+          bundle exec ruby examples/config.rb
+          bundle exec ruby examples/quickstart.rb
+
+      - name: Build gem
+        run: gem build --output=release.gem
